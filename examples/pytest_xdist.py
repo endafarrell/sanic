@@ -18,12 +18,8 @@ import pytest
 @pytest.fixture(scope="session")
 def test_port(worker_id):
     m = re.search(r'[0-9]+', worker_id)
-    if m:
-        num_id = m.group(0)
-    else:
-        num_id = 0
-    port = PORT_BASE + int(num_id)
-    return port
+    num_id = m.group(0) if m else 0
+    return PORT_BASE + int(num_id)
 
 
 @pytest.fixture(scope="session")

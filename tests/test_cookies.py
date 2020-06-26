@@ -57,8 +57,7 @@ def test_false_cookies(app, httponly, expected):
 def test_http2_cookies(app):
     @app.route("/")
     async def handler(request):
-        response = text("Cookies are: {}".format(request.cookies["test"]))
-        return response
+        return text("Cookies are: {}".format(request.cookies["test"]))
 
     headers = {"cookie": "test=working!"}
     request, response = app.test_client.get("/", headers=headers)

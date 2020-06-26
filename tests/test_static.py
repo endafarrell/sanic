@@ -10,8 +10,7 @@ def static_file_directory():
     """The static directory to serve"""
     current_file = inspect.getfile(inspect.currentframe())
     current_directory = os.path.dirname(os.path.abspath(current_file))
-    static_directory = os.path.join(current_directory, "static")
-    return static_directory
+    return os.path.join(current_directory, "static")
 
 
 def get_file_path(static_file_directory, file_name):
@@ -28,8 +27,8 @@ def get_file_content(static_file_directory, file_name):
 def large_file(static_file_directory):
     large_file_path = os.path.join(static_file_directory, "large.file")
 
-    size = 2 * 1024 * 1024
     with open(large_file_path, "w") as f:
+        size = 2 * 1024 * 1024
         f.write("a" * size)
 
     yield large_file_path

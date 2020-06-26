@@ -156,8 +156,7 @@ class InvalidUsage(SanicException):
 class MethodNotSupported(SanicException):
     def __init__(self, message, method, allowed_methods):
         super().__init__(message)
-        self.headers = dict()
-        self.headers["Allow"] = ", ".join(allowed_methods)
+        self.headers = {"Allow": ", ".join(allowed_methods)}
         if method in ["HEAD", "PATCH", "PUT", "DELETE"]:
             self.headers["Content-Length"] = 0
 

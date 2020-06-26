@@ -293,8 +293,7 @@ def static_file_directory():
     """The static directory to serve"""
     current_file = inspect.getfile(inspect.currentframe())
     current_directory = os.path.dirname(os.path.abspath(current_file))
-    static_directory = os.path.join(current_directory, "static")
-    return static_directory
+    return os.path.join(current_directory, "static")
 
 
 def get_file_content(static_file_directory, file_name):
@@ -356,9 +355,7 @@ def test_file_head_response(app, file_name, static_file_directory):
         file_path = os.path.join(static_file_directory, filename)
         file_path = os.path.abspath(unquote(file_path))
         stats = await async_os.stat(file_path)
-        headers = dict()
-        headers["Accept-Ranges"] = "bytes"
-        headers["Content-Length"] = str(stats.st_size)
+        headers = {"Accept-Ranges": "bytes", "Content-Length": str(stats.st_size)}
         if request.method == "HEAD":
             return HTTPResponse(
                 headers=headers,
@@ -431,8 +428,7 @@ def test_file_stream_head_response(app, file_name, static_file_directory):
     async def file_route(request, filename):
         file_path = os.path.join(static_file_directory, filename)
         file_path = os.path.abspath(unquote(file_path))
-        headers = dict()
-        headers["Accept-Ranges"] = "bytes"
+        headers = {"Accept-Ranges": "bytes"}
         if request.method == "HEAD":
             # Return a normal HTTPResponse, not a
             # StreamingHTTPResponse for a HEAD request

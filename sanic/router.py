@@ -170,10 +170,11 @@ class Router:
             _slash_is_missing = methods in slashed_methods
             _without_slash_is_missing = methods in unslashed_methods
 
-        slash_is_missing = not uri[-1] == "/" and not _slash_is_missing
+        slash_is_missing = uri[-1] != "/" and not _slash_is_missing
         without_slash_is_missing = (
-            uri[-1] == "/" and not _without_slash_is_missing and not uri == "/"
+            uri[-1] == "/" and not _without_slash_is_missing and uri != "/"
         )
+
         # add version with trailing slash
         if slash_is_missing:
             self._add(uri + "/", methods, handler, host, name)
@@ -244,7 +245,7 @@ class Router:
 
         def merge_route(route, methods, handler):
             # merge to the existing route when possible.
-            if not route.methods or not methods:
+            if not (route.methods and methods):
                 # method-unspecified routes are not mergeable.
                 raise RouteExists("Route already registered: {}".format(uri))
             elif route.methods.intersection(methods):

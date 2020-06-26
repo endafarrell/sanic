@@ -598,7 +598,7 @@ class Sanic:
         """
         if attach_to == "request":
             self.request_middleware.append(middleware)
-        if attach_to == "response":
+        elif attach_to == "response":
             self.response_middleware.appendleft(middleware)
         return middleware
 
@@ -788,11 +788,7 @@ class Sanic:
 
         if external:
             if not scheme:
-                if ":" in netloc[:8]:
-                    scheme = netloc[:8].split(":", 1)[0]
-                else:
-                    scheme = "http"
-
+                scheme = netloc[:8].split(":", 1)[0] if ":" in netloc[:8] else "http"
             if "://" in netloc[:8]:
                 netloc = netloc.split("://", 1)[-1]
 

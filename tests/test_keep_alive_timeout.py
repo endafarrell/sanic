@@ -23,11 +23,10 @@ class ReuseableTCPConnector(TCPConnector):
         new_conn = await super(ReuseableTCPConnector, self).connect(
             req, *args, **kwargs
         )
-        if self.old_proto is not None:
-            if self.old_proto != new_conn._protocol:
-                raise RuntimeError(
-                    "We got a new connection, wanted the same one!"
-                )
+        if self.old_proto is not None and self.old_proto != new_conn._protocol:
+            raise RuntimeError(
+                "We got a new connection, wanted the same one!"
+            )
         print(new_conn.__dict__)
         self.old_proto = new_conn._protocol
         return new_conn

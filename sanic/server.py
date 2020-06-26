@@ -384,28 +384,30 @@ class HttpProtocol(asyncio.Protocol):
 
         :return: None
         """
-        if self.access_log:
-            extra = {"status": getattr(response, "status", 0)}
+        if not self.access_log:
+            return
 
-            if isinstance(response, HTTPResponse):
-                extra["byte"] = len(response.body)
-            else:
-                extra["byte"] = -1
+        extra = {"status": getattr(response, "status", 0)}
 
-            extra["host"] = "UNKNOWN"
-            if self.request is not None:
-                if self.request.ip:
-                    extra["host"] = "{0}:{1}".format(
-                        self.request.ip, self.request.port
-                    )
+        if isinstance(response, HTTPResponse):
+            extra["byte"] = len(response.body)
+        else:
+            extra["byte"] = -1
 
-                extra["request"] = "{0} {1}".format(
-                    self.request.method, self.request.url
+        extra["host"] = "UNKNOWN"
+        if self.request is not None:
+            if self.request.ip:
+                extra["host"] = "{0}:{1}".format(
+                    self.request.ip, self.request.port
                 )
-            else:
-                extra["request"] = "nil"
 
-            access_logger.info("", extra=extra)
+            extra["request"] = "{0} {1}".format(
+                self.request.method, self.request.url
+            )
+        else:
+            extra["request"] = "nil"
+
+        access_logger.info("", extra=extra)
 
     def write_response(self, response):
         """
@@ -809,7 +811,7 @@ def serve(
         start_shutdown = 0
         while connections and (start_shutdown < graceful_shutdown_timeout):
             loop.run_until_complete(asyncio.sleep(0.1))
-            start_shutdown = start_shutdown + 0.1
+            start_shutdown += 0.1
 
         # Force close non-idle connection after waiting for
         # graceful_shutdown_timeout

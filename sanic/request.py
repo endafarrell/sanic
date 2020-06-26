@@ -120,9 +120,7 @@ class Request(dict):
         )
 
     def __bool__(self):
-        if self.transport:
-            return True
-        return False
+        return bool(self.transport)
 
     def body_init(self):
         self.body = []
@@ -156,10 +154,10 @@ class Request(dict):
 
         :return: token related to request
         """
-        prefixes = ("Bearer", "Token")
         auth_header = self.headers.get("Authorization")
 
         if auth_header is not None:
+            prefixes = ("Bearer", "Token")
             for prefix in prefixes:
                 if prefix in auth_header:
                     return auth_header.partition(prefix)[-1].strip()
@@ -266,10 +264,7 @@ class Request(dict):
                 for addr in [addr.strip() for addr in forwarded_for]
                 if addr
             ]
-            if len(remote_addrs) > 0:
-                self._remote_addr = remote_addrs[0]
-            else:
-                self._remote_addr = ""
+            self._remote_addr = remote_addrs[0] if remote_addrs else ""
         return self._remote_addr
 
     @property
@@ -341,7 +336,7 @@ def parse_multipart_form(body, boundary):
         field_name = None
         line_index = 2
         line_end_index = 0
-        while not line_end_index == -1:
+        while line_end_index != -1:
             line_end_index = form_part.find(b"\r\n", line_index)
             form_line = form_part[line_index:line_end_index].decode("utf-8")
             line_index = line_end_index + 2

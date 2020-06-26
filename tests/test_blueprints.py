@@ -23,8 +23,7 @@ def static_file_directory():
     """The static directory to serve"""
     current_file = inspect.getfile(inspect.currentframe())
     current_directory = os.path.dirname(os.path.abspath(current_file))
-    static_directory = os.path.join(current_directory, "static")
-    return static_directory
+    return os.path.join(current_directory, "static")
 
 
 def get_file_path(static_file_directory, file_name):

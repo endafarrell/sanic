@@ -32,10 +32,7 @@ class GunicornWorker(base.Worker):
     def __init__(self, *args, **kw):  # pragma: no cover
         super().__init__(*args, **kw)
         cfg = self.cfg
-        if cfg.is_ssl:
-            self.ssl_context = self._create_ssl_context(cfg)
-        else:
-            self.ssl_context = None
+        self.ssl_context = self._create_ssl_context(cfg) if cfg.is_ssl else None
         self.servers = {}
         self.connections = set()
         self.exit_code = 0
@@ -99,42 +96,44 @@ class GunicornWorker(base.Worker):
         sys.exit(self.exit_code)
 
     async def close(self):
-        if self.servers:
-            # stop accepting connections
-            self.log.info(
-                "Stopping server: %s, connections: %s",
-                self.pid,
-                len(self.connections),
-            )
-            for server in self.servers:
-                server.close()
-                await server.wait_closed()
-            self.servers.clear()
+        if not self.servers:
+            return
 
-            # prepare connections for closing
-            self.signal.stopped = True
-            for conn in self.connections:
-                conn.close_if_idle()
+        # stop accepting connections
+        self.log.info(
+            "Stopping server: %s, connections: %s",
+            self.pid,
+            len(self.connections),
+        )
+        for server in self.servers:
+            server.close()
+            await server.wait_closed()
+        self.servers.clear()
 
-            # gracefully shutdown timeout
-            start_shutdown = 0
-            graceful_shutdown_timeout = self.cfg.graceful_timeout
-            while self.connections and (
+        # prepare connections for closing
+        self.signal.stopped = True
+        for conn in self.connections:
+            conn.close_if_idle()
+
+        # gracefully shutdown timeout
+        start_shutdown = 0
+        graceful_shutdown_timeout = self.cfg.graceful_timeout
+        while self.connections and (
                 start_shutdown < graceful_shutdown_timeout
             ):
-                await asyncio.sleep(0.1)
-                start_shutdown = start_shutdown + 0.1
+            await asyncio.sleep(0.1)
+            start_shutdown += 0.1
 
-            # Force close non-idle connection after waiting for
-            # graceful_shutdown_timeout
-            coros = []
-            for conn in self.connections:
-                if hasattr(conn, "websocket") and conn.websocket:
-                    coros.append(conn.websocket.close_connection())
-                else:
-                    conn.close()
-            _shutdown = asyncio.gather(*coros, loop=self.loop)
-            await _shutdown
+        # Force close non-idle connection after waiting for
+        # graceful_shutdown_timeout
+        coros = []
+        for conn in self.connections:
+            if hasattr(conn, "websocket") and conn.websocket:
+                coros.append(conn.websocket.close_connection())
+            else:
+                conn.close()
+        _shutdown = asyncio.gather(*coros, loop=self.loop)
+        await _shutdown
 
     async def _run(self):
         for sock in self.sockets:

@@ -105,9 +105,8 @@ class Cookie(dict):
         if key not in self._keys:
             raise KeyError("Unknown cookie property")
         if value is not False:
-            if key.lower() == "max-age":
-                if not str(value).isdigit():
-                    value = DEFAULT_MAX_AGE
+            if key.lower() == "max-age" and not str(value).isdigit():
+                value = DEFAULT_MAX_AGE
             return super().__setitem__(key, value)
 
     def encode(self, encoding):

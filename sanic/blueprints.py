@@ -228,11 +228,12 @@ class Blueprint:
         """
         # Handle HTTPMethodView differently
         if hasattr(handler, "view_class"):
-            methods = set()
+            methods = {
+                method
+                for method in HTTP_METHODS
+                if getattr(handler.view_class, method.lower(), None)
+            }
 
-            for method in HTTP_METHODS:
-                if getattr(handler.view_class, method.lower(), None):
-                    methods.add(method)
 
         if strict_slashes is None:
             strict_slashes = self.strict_slashes

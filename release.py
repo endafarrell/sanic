@@ -96,13 +96,10 @@ def _get_new_version(
     current_version: str = None,
     micro_release: bool = False,
 ):
-    if micro_release:
-        if current_version:
-            return _change_micro_version(current_version)
-        elif config_file:
-            return _change_micro_version(_fetch_current_version(config_file))
-        else:
-            return _fetch_default_calendar_release_version()
+    if micro_release and current_version:
+        return _change_micro_version(current_version)
+    elif micro_release and config_file:
+        return _change_micro_version(_fetch_current_version(config_file))
     else:
         return _fetch_default_calendar_release_version()
 
@@ -167,8 +164,8 @@ def _generate_change_log(current_version: str = None):
         exit(1)
 
     commit_details = OrderedDict()
-    commit_details["authors"] = dict()
-    commit_details["commits"] = list()
+    commit_details["authors"] = {}
+    commit_details["commits"] = []
 
     for line in str(output).split("\n"):
         commit, author, description = line.split(":::")

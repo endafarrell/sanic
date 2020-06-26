@@ -35,9 +35,7 @@ def _iter_module_files():
 
 def _get_args_for_reloading():
     """Returns the executable."""
-    rv = [sys.executable]
-    rv.extend(sys.argv)
-    return rv
+    return [sys.executable, *sys.argv]
 
 
 def restart_with_reloader():

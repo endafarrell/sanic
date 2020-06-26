@@ -117,11 +117,7 @@ class StreamingHTTPResponse(BaseHTTPResponse):
 
         headers = self._parse_headers()
 
-        if self.status is 200:
-            status = b"OK"
-        else:
-            status = STATUS_CODES.get(self.status)
-
+        status = b"OK" if self.status is 200 else STATUS_CODES.get(self.status)
         return (b"HTTP/%b %d %b\r\n" b"%b" b"%b\r\n") % (
             version.encode(),
             self.status,
@@ -144,11 +140,7 @@ class HTTPResponse(BaseHTTPResponse):
     ):
         self.content_type = content_type
 
-        if body is not None:
-            self.body = self._encode_body(body)
-        else:
-            self.body = body_bytes
-
+        self.body = self._encode_body(body) if body is not None else body_bytes
         self.status = status
         self.headers = CIMultiDict(headers or {})
         self._cookies = None

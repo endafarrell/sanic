@@ -124,10 +124,9 @@ def remove_entity_headers(headers, allowed=("content-location", "expires")):
 
     returns the headers without the entity headers
     """
-    allowed = set([h.lower() for h in allowed])
-    headers = {
+    allowed = {h.lower() for h in allowed}
+    return {
         header: value
         for header, value in headers.items()
         if not is_entity_header(header) or header.lower() in allowed
     }
-    return headers

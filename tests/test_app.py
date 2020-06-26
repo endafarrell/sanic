@@ -139,7 +139,6 @@ def test_handle_request_with_nested_exception(app, monkeypatch):
     @app.get("/")
     def handler(request):
         raise Exception
-        return text("OK")
 
     request, response = app.test_client.get("/")
     assert response.status == 500
@@ -161,7 +160,6 @@ def test_handle_request_with_nested_exception_debug(app, monkeypatch):
     @app.get("/")
     def handler(request):
         raise Exception
-        return text("OK")
 
     request, response = app.test_client.get("/", debug=True)
     assert response.status == 500
@@ -185,7 +183,6 @@ def test_handle_request_with_nested_sanic_exception(app, monkeypatch, caplog):
     @app.get("/")
     def handler(request):
         raise Exception
-        return text("OK")
 
     with caplog.at_level(logging.ERROR):
         request, response = app.test_client.get("/")
